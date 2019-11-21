@@ -156,7 +156,20 @@ public class LibraryIdentifier {
 			// In some edge case the automatic root package extraction gives us a generic package that could match multiple different libraries.
 			// In these cases it is better to ignore them instead of getting a lot of false matches
 			if (rootPackage == null || ambiguousRootPackages.contains(rootPackage)) continue;
-			
+
+			String[] rootPackageParts = rootPackage.split("\\.");
+			boolean isObfuscated = false;
+			for (String part: rootPackageParts) {
+				if (part.length() < 2) {
+					isObfuscated = true;
+					break;
+				}
+			}
+			if (isObfuscated) {
+				logger.info(Utils.INDENT + "- Skip obfuscated root package " + rootPackage + "  (" + profile.description.name + ")");
+				continue;
+			}
+
 			boolean match = appProfile.packageTree.containsPackage(rootPackage);
 			if (match && !stats.packageOnlyMatches.containsKey(profile.description.name)) {
 				stats.packageOnlyMatches.put(profile.description.name, rootPackage);
